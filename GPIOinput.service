@@ -1,0 +1,44 @@
+[Unit]
+Description=GPIO input reader daemon
+
+
+[Service]
+Type=simple
+ExecStart= /home/pi/GPIOinput/GPIOinput.py 
+#
+# usage: GPIOinput.py [-h] [-v] [-u URL] [-n UNAME] [-x PASSWORD] [-l LOGFILE]
+#                    [-w WAIT] [-W WAIT_DETECT]
+#
+# GPIO input read daemon
+#
+# optional arguments:
+#  -h, --help            show this help message and exit
+#  -v, --verbose         Verbose logging
+#  -u URL, --url URL     Domoticz server. Default http://localhost:8085
+#  -n UNAME, --uname UNAME
+#                        username Domoticz server
+#  -x PASSWORD, --password PASSWORD
+#                        password Domoticz server
+#  -l LOGFILE, --logfile LOGFILE
+#                        Log file. Default ./GPIOinput.log
+#  -w WAIT, --wait WAIT  Wait <n> seconds between readings. Default 10s
+#  -W WAIT_DETECT, --wait_detect WAIT_DETECT
+#                        Wait <n> seconds between new detection of switches.
+#                        Default 60s
+
+
+
+TimeoutStopSec=3
+#SyslogLevel=err
+#SyslogIdentifier=bbb
+
+WorkingDirectory=/home/pi/GPIOinput
+
+User=pi
+#Group=evok
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+#Alias=evok.service
