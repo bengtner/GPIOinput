@@ -1,5 +1,6 @@
 [Unit]
 Description=GPIO input reader daemon
+After=domoticz.service
 
 
 [Service]
