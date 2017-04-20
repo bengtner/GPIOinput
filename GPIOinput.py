@@ -109,11 +109,20 @@ def findInputPins() :
         if x["Description"].find("%pin") != -1 :
             no=[w for w in re.split('%pin=|,| ',x["Description"]) if w] [0]
             GPIO.setup(int(no), GPIO.IN )
-            pins.append([ {'idx': x['idx'],'Name': x['Name'],'Pin': no}])
-            pLogger.info("Switch found, idx: %s, Name: %s, GPIO pin (BCM): %s", x['idx'].ljust(3),x['Name'].ljust(15)[:15], no.ljust(2) )
+            pins.append([ {'idx': x['idx'],'Name': x['Name'],'Pin': no,'Val' : 0}])
+
             
-    pLogger.info("********************************************************************************************")
+
     return pins
+    
+def update_old_data(old,new) :
+
+    for x in new :
+        for y in old :
+            if x[0]["Pin"] == y[0]["Pin"] :
+               x[0]["Val"] == y[0]["Val"]       # pin not new - copy value from old data
+    
+    return new                                  # return the new and updated list
 
 def main():
 
@@ -142,23 +151,28 @@ def main():
     pLogger.info("Domoticz server URL: %s, username: %s, password: %s, logfile: %s, wait between readings: %s (s), wait between switch detection: %s, (s)", DOMOTICZ_URL,USERNAME,PASSWORD,LOGFILE,str(WAIT),str(DETECT_WAIT))
    
     n=0
+    old_data=[]
     while True :
         if n == 0  :
             inputPins= findInputPins()          # scan all switch devices and build array of input pins
-            pLogger.debug(inputPins)
+            pLogger.debug(inputPins) 
+            updated_data=update_old_data(old_data,inputPins)    # update list of old data with new input pins (if any)
+            if updated_data != old_data :
+                old_data = updated_data
+                for x in old_data : pLogger.info("Switch found, idx: %s, Name: %s, GPIO pin (BCM): %s", x[0]['idx'].ljust(3),x[0]['Name'].ljust(15)[:15], x[0]['Pin'].ljust(2) )
+                pLogger.info("********************************************************************************************")              
         n=n+1
         if n >= DETECT_WAIT/WAIT : n=0
 
         for x in inputPins :
             data=getPort(int(x[0]["Pin"]))
-            updateDomoticz(x[0]["idx"],data)
- #           if data==1 :
- #               updateDomoticz(x[0]["idx"],"On")
- #           else :
- #               updateDomoticz(x[0]["idx"],"On")
-            pLogger.info("Input read and switch updated. idx: %s,  Name: %s, GPIO pin (BCM): %s, data: %s ", x[0]['idx'].ljust(3),x[0]['Name'].ljust(15)[:15], x[0]['Pin'].ljust(2),str(data ))  
- 
-        pLogger.info("--------------------------------------------------------------------------------------------")
+            for y in old_data :
+                if y[0]["Pin"]==x[0]["Pin"] :
+                    if data != y[0]["Val"] :
+                        y[0]["Val"] = data
+                        updateDomoticz(x[0]["idx"],data)
+                        pLogger.info("Input read and switch updated. idx: %s,  Name: %s, GPIO pin (BCM): %s, data: %s ", x[0]['idx'].ljust(3),x[0]['Name'].ljust(15)[:15], x[0]['Pin'].ljust(2),str(data ))  
+                        pLogger.info("--------------------------------------------------------------------------------------------")
         time.sleep(WAIT)
         
 main();
