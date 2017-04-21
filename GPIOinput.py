@@ -120,7 +120,7 @@ def update_old_data(old,new) :
     for x in new :
         for y in old :
             if x[0]["Pin"] == y[0]["Pin"] :
-               x[0]["Val"] == y[0]["Val"]       # pin not new - copy value from old data
+               x[0]["Val"] = y[0]["Val"]       # pin not new - copy value from old data
     
     return new                                  # return the new and updated list
 
