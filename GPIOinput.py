@@ -109,7 +109,10 @@ def findInputPins() :
         if x["Description"].find("%pin") != -1 :
             no=[w for w in re.split('%pin=|,| ',x["Description"]) if w] [0]
             GPIO.setup(int(no), GPIO.IN )
-            pins.append([ {'idx': x['idx'],'Name': x['Name'],'Pin': no,'Val' : 0}])
+            if x['Data']== "On" :
+                pins.append([ {'idx': x['idx'],'Name': x['Name'],'Pin': no,'Val' : 1}])
+            else :
+                pins.append([ {'idx': x['idx'],'Name': x['Name'],'Pin': no,'Val' : 0}])
 
             
 
